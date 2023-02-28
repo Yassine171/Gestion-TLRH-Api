@@ -19,27 +19,27 @@ public class CollaborateurController {
     @Autowired
     private collaborateurService collaborateurService;
     @PostMapping()
-    public Collaborateur saveUser(@RequestBody Collaborateur collaborateur) {
+    public Collaborateur saveColloborateur(@RequestBody Collaborateur collaborateur) {
         return collaborateurService.save(collaborateur);
     }
 
 
     @GetMapping
-    public ResponseEntity<List<Collaborateur>> getAllSubreddits() {
+    public ResponseEntity<List<Collaborateur>> getAllColloborateurs() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(collaborateurService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Collaborateur> getSubreddit(@PathVariable Long id) {
+    public ResponseEntity<Collaborateur> getColloborateur(@PathVariable Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(collaborateurService.getCollaborateur(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Collaborateur> updateUser(@PathVariable("id") Long id,
+    public ResponseEntity<Collaborateur> updateCollloborateur(@PathVariable("id") Long id,
                                            @RequestBody Collaborateur collaborateur) {
         collaborateur = collaborateurService.updateCollaborateur(id,collaborateur);
         return ResponseEntity.ok(collaborateur);
