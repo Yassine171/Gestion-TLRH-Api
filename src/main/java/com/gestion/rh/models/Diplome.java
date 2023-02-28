@@ -1,14 +1,13 @@
 package com.gestion.rh.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+
+import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -26,6 +25,9 @@ public class Diplome {
     private String type_ecole;
     private String type_diplome;
     private String promotion;
+
+    @OneToMany(mappedBy = "diplome")
+    private List<Collaborateur> collaborateurList;
 
 
 }

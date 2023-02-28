@@ -1,9 +1,6 @@
 package com.gestion.rh.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,6 +54,7 @@ public class Collaborateur {
     @JoinColumn(name = "diplome_id")
     private Diplome diplome ;
 
+    @OneToMany(mappedBy = "colloborateur")
     private List<Competence> competences;
 
 }
