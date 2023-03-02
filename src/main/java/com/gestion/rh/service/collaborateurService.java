@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,9 +38,10 @@ public class collaborateurService {
     }
     @Transactional(readOnly = true)
     public List<Collaborateur> getAll() {
-        return collaborateurRepository.findAll()
+        List<Collaborateur>  collaborateurList= collaborateurRepository.findAll()
                 .stream()
-                .collect(toList());
+                .collect(Collectors.toList());
+        return collaborateurList;
     }
 
     public Collaborateur getCollaborateur(Long id) {
