@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -28,6 +30,7 @@ public class User {
     @NotBlank(message = "Password is required")
     private String password;
     @Email
+    @Column(name = "email", unique = true)
     @NotEmpty(message = "Email is required")
     private String email;
     private Instant created;
@@ -42,4 +45,8 @@ public class User {
                     @JoinColumn(name = "ROLE_ID") })
     private Set<Role> roles;
 
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 }

@@ -1,5 +1,6 @@
 package com.gestion.rh.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,7 @@ public class Diplome {
     private String type_diplome;
     private String promotion;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "diplome")
     private List<Collaborateur> collaborateurList;
 

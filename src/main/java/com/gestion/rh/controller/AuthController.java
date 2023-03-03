@@ -22,7 +22,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<String> signup(@Valid @RequestBody RegisterRequest registerRequest) {
         authService.signup(registerRequest);
         return new ResponseEntity<>("User Registration Successful",
                 OK);
@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 
