@@ -58,4 +58,9 @@ public class ManagerRh {
 
     @OneToMany(mappedBy = "colloborateur",cascade = CascadeType.ALL)
     private List<Competence> competences;
+
+    private boolean status=false;
+
+    @OneToMany(mappedBy = "managerRh")
+    private List<Collaborateur> collaborateurs;
 }

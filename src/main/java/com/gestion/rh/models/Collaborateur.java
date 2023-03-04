@@ -65,4 +65,8 @@ public class Collaborateur {
     @OneToMany(mappedBy = "colloborateur",cascade = CascadeType.ALL)
     private List<Competence> competences;
 
+    @ManyToOne
+    @JoinColumn(name = "manager_rh_id")
+    private ManagerRh managerRh;
+
 }

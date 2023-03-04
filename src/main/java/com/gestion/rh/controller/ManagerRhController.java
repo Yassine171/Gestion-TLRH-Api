@@ -1,17 +1,18 @@
 package com.gestion.rh.controller;
 
 import com.gestion.rh.models.Collaborateur;
+import com.gestion.rh.models.Competence;
+import com.gestion.rh.models.Diplome;
 import com.gestion.rh.models.ManagerRh;
+import com.gestion.rh.repository.ManagerRhRepository;
 import com.gestion.rh.repository.CollaborateurRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -19,29 +20,122 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ManagerRhController {
     private final CollaborateurRepository collaborateurRepository;
+    private final ManagerRhRepository managerRhRepository;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('Ambassadeur Rh')")
     public ResponseEntity<?> addManerRh(@PathVariable Long id) {
-        Optional<Collaborateur> collaborateur=collaborateurRepository.findById(id);
-        ManagerRh managerRh = ManagerRh.builder()
-                .abreviation(collaborateur.get().getAbreviation())
-                .BU(collaborateur.get().getBU())
-                .email(collaborateur.get().getEmail())
-                .nom(collaborateur.get().getNom())
-                .Date_Participation(collaborateur.get().getDate_Participation())
-                .matricule(collaborateur.get().getMatricule())
-                .mois_bap(collaborateur.get().getMois_bap())
-                .sexe(collaborateur.get().getSexe())
-                .site(collaborateur.get().getSite())
-                .Date_Dpart(collaborateur.get().getDate_Dpart())
-                .Poste_App(collaborateur.get().getPoste_App())
-                .salaire(collaborateur.get().getSalaire())
-                .Poste_Actuel(collaborateur.get().getPoste_Actuel())
-                .prenom(collaborateur.get().getPrenom())
-                .build();
+        Optional<Collaborateur> collaborateurOpt = collaborateurRepository.findById(id);
+        if (collaborateurOpt.isPresent()) {
+            Collaborateur collaborateur = collaborateurOpt.get();
+            List<Competence> competences = collaborateur.getCompetences();
+            Diplome diplome = collaborateur.getDiplome();
+
+            // detach competences and diplome from collaborateur
+            collaborateur.setCompetences(null);
+            collaborateur.setDiplome(null);
+            collaborateurRepository.save(collaborateur);
+
+            ManagerRh managerRh = ManagerRh.builder()
+                    .abreviation(collaborateur.getAbreviation())
+                    .BU(collaborateur.getBU())
+                    .email(collaborateur.getEmail())
+                    .nom(collaborateur.getNom())
+                    .Date_Participation(collaborateur.getDate_Participation())
+                    .matricule(collaborateur.getMatricule())
+                    .mois_bap(collaborateur.getMois_bap())
+                    .sexe(collaborateur.getSexe())
+                    .site(collaborateur.getSite())
+                    .Date_Dpart(collaborateur.getDate_Dpart())
+                    .Poste_App(collaborateur.getPoste_App())
+                    .salaire(collaborateur.getSalaire())
+                    .Poste_Actuel(collaborateur.getPoste_Actuel())
+                    .prenom(collaborateur.getPrenom())
+                    .competences(competences)
+                    .diplome(diplome)
+                    .build();
+
+            managerRhRepository.save(managerRh);
+            collaborateurRepository.delete(collaborateur);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(managerRh);
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Collaborateur not found");
+        }
+    }
+
+    @GetMapping("/status/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('Ambassadeur Rh')")
+    public ResponseEntity<?> toogleStatus(@PathVariable Long id) {
+        Optional<ManagerRh> managerRhOpt = managerRhRepository.findById(id);
+        if (managerRhOpt.isPresent()) {
+            ManagerRh managerRh = managerRhOpt.get();
+            managerRh.setStatus(!managerRh.isStatus());
+            managerRhRepository.save(managerRh);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(managerRh);
+        }
+        else {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Collaborateur not found");
+        }
+    }
+
+    @GetMapping("/{idManagerRh}/collaborateurs")
+    @PreAuthorize("hasRole('USER') or hasRole('Ambassadeur Rh')")
+    public ResponseEntity<?> getCollaborateursSansManagerRh(@PathVariable Long idManagerRh) {
+        Optional<ManagerRh> managerRhOpt = managerRhRepository.findById(idManagerRh);
+        if (managerRhOpt.isPresent()) {
+            List<Collaborateur> collaborateurs = collaborateurRepository.findByManagerRhIsNull();
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(collaborateurs);
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Manager RH not found");
+        }
+    }
+
+
+    @PostMapping("/manager/{id}/collaborateurs")
+    public ResponseEntity<?> assignCollaborateurToManager(@PathVariable Long id, @RequestBody Long collaborateurId) {
+        Optional<ManagerRh> managerRhOpt = managerRhRepository.findById(id);
+        if (!managerRhOpt.isPresent()) {
+            // handle managerRh not found error
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Manager RH not found");
+        }
+
+        Optional<Collaborateur> collaborateurOpt = collaborateurRepository.findById(collaborateurId);
+        if (!collaborateurOpt.isPresent()) {
+            // handle collaborateur not found error
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Collaborateur not found");
+        }
+
+        ManagerRh managerRh = managerRhOpt.get();
+        Collaborateur collaborateur = collaborateurOpt.get();
+
+        if (managerRh.isStatus() == false) {
+            // handle managerRh not activated error
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Manager RH is not activated");
+        }
+
+        collaborateur.setManagerRh(managerRh);
+        collaborateurRepository.save(collaborateur);
+
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(managerRh);
+                .body("Collaborateur successfully assigned to Manager RH");
     }
 }
