@@ -2,11 +2,13 @@ package com.gestion.rh.controller;
 
 import com.gestion.rh.models.Collaborateur;
 import com.gestion.rh.service.collaborateurService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +29,7 @@ public class CollaborateurController {
 
 
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('Ambassadeur Rh')")
+    @RolesAllowed({"ROLE_CUSTOMER", "ROLE_EDITOR"})
     public ResponseEntity<List<Collaborateur>> getAllColloborateurs() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -50,4 +52,12 @@ public class CollaborateurController {
         return ResponseEntity.ok(collaborateur);
     }
 
+    @GetMapping("/evolution/salaire")
+    @PreAuthorize("hasRole('USER') or hasRole('Ambassadeur Rh')")
+    public ResponseEntity<?> getEvolutionSalaire() {
+        List<Object[]> evolutionSalaire=collaborateurService.getEvolutionSalaire();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(evolutionSalaire);
+    }
 }

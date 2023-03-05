@@ -4,6 +4,7 @@ import com.gestion.rh.models.Collaborateur;
 import com.gestion.rh.models.Competence;
 import com.gestion.rh.models.Diplome;
 import com.gestion.rh.models.ManagerRh;
+import com.gestion.rh.repository.CompetenceRepository;
 import com.gestion.rh.repository.ManagerRhRepository;
 import com.gestion.rh.repository.CollaborateurRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class ManagerRhController {
     private final CollaborateurRepository collaborateurRepository;
     private final ManagerRhRepository managerRhRepository;
+    private final CompetenceRepository competenceRepository;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('Ambassadeur Rh')")
@@ -30,11 +32,13 @@ public class ManagerRhController {
             Collaborateur collaborateur = collaborateurOpt.get();
             List<Competence> competences = collaborateur.getCompetences();
             Diplome diplome = collaborateur.getDiplome();
-
-            // detach competences and diplome from collaborateur
-            collaborateur.setCompetences(null);
+            for (Competence competence : competences) {
+                competence.setColloborateur(null);
+            }
+            diplome.setCollaborateurList(null);
             collaborateur.setDiplome(null);
-            collaborateurRepository.save(collaborateur);
+            collaborateur.setCompetences(null);
+            collaborateurRepository.delete(collaborateur);
 
             ManagerRh managerRh = ManagerRh.builder()
                     .abreviation(collaborateur.getAbreviation())
@@ -56,7 +60,12 @@ public class ManagerRhController {
                     .build();
 
             managerRhRepository.save(managerRh);
-            collaborateurRepository.delete(collaborateur);
+
+            for (Competence competence : competences) {
+                competence.setManagerRh(managerRh);
+                competenceRepository.save(competence);
+            }
+
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(managerRh);

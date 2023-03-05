@@ -1,5 +1,6 @@
 package com.gestion.rh.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,8 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -44,9 +48,10 @@ public class ManagerRh {
     private String BU ;
     private String mois_bap ;
 
-    private Instant Date_Dpart;
-
-    private Instant Date_Participation;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate Date_Dpart;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate Date_Participation;
     @Pattern(regexp = "^[A-Z]{2}[0-9]{1}$", message = "Invalid Poste")
     private String Poste_App;
     @Pattern(regexp = "^[A-Z]{3}[0-9]{1}$", message = "Invalid Poste")
@@ -56,7 +61,7 @@ public class ManagerRh {
     @JoinColumn(name = "diplome_id")
     private Diplome diplome ;
 
-    @OneToMany(mappedBy = "colloborateur",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "managerRh",cascade = CascadeType.ALL)
     private List<Competence> competences;
 
     private boolean status=false;

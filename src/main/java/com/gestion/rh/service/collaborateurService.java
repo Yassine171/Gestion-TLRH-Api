@@ -59,4 +59,7 @@ public class collaborateurService {
         return collaborateurAncien;
     }
 
+    public List<Object[]> getEvolutionSalaire() {
+        return collaborateurRepository.findAverageSalaireByYear();
+    }
 }

@@ -28,5 +28,11 @@ public class Competence {
     @ManyToOne
     @JoinColumn(name="colloborateur_id")
     private Collaborateur colloborateur;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="managerRh_id")
+    private ManagerRh managerRh;
+
 }
 
