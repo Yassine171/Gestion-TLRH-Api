@@ -3,10 +3,10 @@ package com.gestion.rh.service;
 import com.gestion.rh.models.Collaborateur;
 import com.gestion.rh.repository.CollaborateurRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +15,10 @@ import java.io.OutputStream;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DataExportService {
 
-    @Autowired
-    private CollaborateurRepository collaborateurRepository;
+    private final CollaborateurRepository collaborateurRepository;
 
     public void exportDataToExcel(HttpServletResponse response) throws IOException {
         try (OutputStream outputStream = response.getOutputStream()) {
@@ -74,7 +74,7 @@ public class DataExportService {
                 row.createCell(9).setCellValue(collaborateur.getSite());
                 row.createCell(10).setCellValue(collaborateur.getBU());
                 row.createCell(11).setCellValue(collaborateur.getMois_bap());
-                row.createCell(12).setCellValue(collaborateur.getDate_Dpart().toString());
+                row.createCell(12).setCellValue(collaborateur.getDate_Dpart() != null ? collaborateur.getDate_Dpart().toString() : "");
                 row.createCell(13).setCellValue(collaborateur.isAncien_Collaborateur());
                 row.createCell(14).setCellValue(collaborateur.isIntegration_semaine());
             }

@@ -21,6 +21,7 @@ public class AdminController {
 
     @Autowired
     private DataImportService dataImportService;
+    @Autowired
     private DataExportService dataExportService;
 
     @PostMapping("/import")
